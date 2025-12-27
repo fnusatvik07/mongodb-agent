@@ -3,13 +3,12 @@ Data range detection tool for MCP server
 """
 
 from typing import Dict, Any
-from fastmcp import FastMCP
+from mcp_server.utils.db_client import mongo_client
+from mcp_server.mcp_instance import mcp
 from datetime import datetime
 
-
-def register_tool(mcp: FastMCP, db):
-    @mcp.tool()
-    def get_data_date_range(collection: str = "orders") -> Dict[str, Any]:
+@mcp.tool()
+def get_data_date_range(collection: str = "orders") -> Dict[str, Any]:
         """Get the actual date range of data available in the database
         
         Args:
@@ -19,6 +18,7 @@ def register_tool(mcp: FastMCP, db):
             Dictionary with min_date, max_date, total_records, and sample_dates
         """
         try:
+            db = mongo_client.db
             # Get min and max dates from the collection
             pipeline = [
                 {"$group": {

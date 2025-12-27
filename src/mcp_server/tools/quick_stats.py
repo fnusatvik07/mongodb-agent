@@ -1,23 +1,31 @@
-"""
-Quick statistics tool
-"""
+"""Quick statistics tool for MongoDB collections."""
 
 from typing import Dict, Any
-from fastmcp import FastMCP
+from mcp_server.utils.db_client import mongo_client
+from mcp_server.mcp_instance import mcp
 
-
-def register_tool(mcp: FastMCP, db):
-    @mcp.tool()
-    def get_collection_summary(collection: str) -> Dict[str, Any]:
-        """Get summary statistics for any collection
+@mcp.tool()
+def get_collection_summary(collection: str) -> Dict[str, Any]:
+        """Get summary statistics for any collection.
 
         Args:
-            collection: Collection name (orders, customers, menu_items, etc.)
+            collection: Collection name (orders, customers, menu_items, users, delivery_details, audit_logs)
             
         Returns:
-            Summary statistics for the specified collection
+            Dict with collection-specific summary statistics
+            
+        Provides different metrics based on collection type:
+            orders: total count, revenue totals, average order value
+            customers: customer count, segment breakdown, spending averages
+            menu_items: item count, price ranges, category distribution
+            
+        WORKFLOW:
+            For custom statistics, first use:
+            1. mongodb_get_collections() - to see available collections
+            2. mongodb_describe_collection() - to understand field names and structure
         """
         try:
+            db = mongo_client.db
             if collection == "orders":
                 pipeline = [
                     {"$group": {

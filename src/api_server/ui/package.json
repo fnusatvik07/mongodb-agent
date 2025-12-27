@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@tailwindcss/postcss": "^4.1.18",
     "axios": "^1.13.2",
     "lucide-react": "^0.562.0",
     "react": "^19.2.3",
@@ -30,10 +29,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "autoprefixer": "^10.4.23",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.18"
   }
 }

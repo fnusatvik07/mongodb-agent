@@ -3,19 +3,19 @@ Chart generation tool for MCP server
 """
 
 from typing import Dict, Any, Optional
-from fastmcp import FastMCP
 import matplotlib
 matplotlib.use('Agg')  # Set backend before importing pyplot
 import matplotlib.pyplot as plt
+from mcp_server.utils.db_client import mongo_client
+from mcp_server.mcp_instance import mcp
 import pandas as pd
 import seaborn as sns
 import os
 import uuid
 from datetime import datetime
 
-def register_tool(mcp: FastMCP, db):
-    @mcp.tool()
-    def generate_chart_from_data(
+@mcp.tool()
+def generate_chart_from_data(
         data_source: str,
         chart_type: str = "bar",
         title: Optional[str] = None,
@@ -43,6 +43,7 @@ def register_tool(mcp: FastMCP, db):
             Chart file information and data summary
         """
         try:
+            db = mongo_client.db
             # Create charts directory
             charts_dir = "./charts"
             os.makedirs(charts_dir, exist_ok=True)
@@ -77,6 +78,7 @@ def register_tool(mcp: FastMCP, db):
                 x_field = x_field or "_id"
                 y_field = y_field or "value"
                 title = title or "Daily Revenue Trends"
+                chart_type = "line"  # Force line chart for time series data
                 
             elif data_source == "customer_segments":
                 pipeline = [
@@ -221,7 +223,7 @@ def _create_chart(data, chart_type, title, x_field, y_field, charts_dir):
                 y_val = item.get(y_field)
                 
                 if x_val is not None and y_val is not None:
-                    x_values.append(str(x_val))  # Convert to string for labels
+                    x_values.append(x_val)  # Keep original data type
                     y_values.append(float(y_val) if isinstance(y_val, (int, float)) else 0)
             except (ValueError, TypeError) as e:
                 print(f"Skipping invalid data item: {item}, error: {e}")
@@ -274,27 +276,49 @@ def _create_chart(data, chart_type, title, x_field, y_field, charts_dir):
                                ha='left', va='center', fontsize=9)
                 
             elif chart_type == "line":
-                ax.plot(range(len(x_values)), y_values, marker='o', linewidth=2, markersize=6)
-                ax.set_xticks(range(len(x_values)))
-                ax.set_xticklabels(x_values, rotation=45, ha='right')
+                # For line charts, use numeric positions if x_values are strings
+                if all(isinstance(x, str) for x in x_values):
+                    positions = range(len(x_values))
+                    ax.plot(positions, y_values, marker='o', linewidth=2, markersize=6)
+                    ax.set_xticks(positions)
+                    ax.set_xticklabels(x_values, rotation=45, ha='right')
+                else:
+                    ax.plot(x_values, y_values, marker='o', linewidth=2, markersize=6)
+                    ax.tick_params(axis='x', rotation=45)
                 ax.set_xlabel(x_field.replace('_', ' ').title())
                 ax.set_ylabel(y_field.replace('_', ' ').title())
                 
             else:  # Default to bar chart
                 colors = plt.cm.Set3(range(len(x_values)))
-                bars = ax.bar(range(len(x_values)), y_values, color=colors)
-                ax.set_xticks(range(len(x_values)))
-                ax.set_xticklabels(x_values, rotation=45, ha='right')
+                
+                # For bar charts, use numeric positions if x_values are strings
+                if all(isinstance(x, str) for x in x_values):
+                    positions = range(len(x_values))
+                    bars = ax.bar(positions, y_values, color=colors)
+                    ax.set_xticks(positions)
+                    ax.set_xticklabels(x_values, rotation=45, ha='right')
+                    
+                    # Add value labels on bars (using positions)
+                    for i, (bar, value) in enumerate(zip(bars, y_values)):
+                        height = bar.get_height()
+                        ax.annotate(f'{int(value):,}', 
+                                   xy=(i, height),
+                                   xytext=(0, 3), textcoords="offset points", 
+                                   ha='center', va='bottom', fontsize=9)
+                else:
+                    bars = ax.bar(x_values, y_values, color=colors)
+                    ax.tick_params(axis='x', rotation=45)
+                    
+                    # Add value labels on bars (using x_values)
+                    for bar, value in zip(bars, y_values):
+                        height = bar.get_height()
+                        ax.annotate(f'{int(value):,}', 
+                                   xy=(bar.get_x() + bar.get_width() / 2, height),
+                                   xytext=(0, 3), textcoords="offset points", 
+                                   ha='center', va='bottom', fontsize=9)
+                
                 ax.set_xlabel(x_field.replace('_', ' ').title())
                 ax.set_ylabel(y_field.replace('_', ' ').title())
-                
-                # Add value labels on bars
-                for i, (bar, value) in enumerate(zip(bars, y_values)):
-                    height = bar.get_height()
-                    ax.annotate(f'{int(value):,}', 
-                               xy=(i, height),
-                               xytext=(0, 3), textcoords="offset points", 
-                               ha='center', va='bottom', fontsize=9)
             
             # Add title and styling
             ax.set_title(title, fontsize=14, fontweight='bold', pad=20)

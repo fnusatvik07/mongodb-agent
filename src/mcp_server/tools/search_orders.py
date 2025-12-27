@@ -3,12 +3,11 @@ Search orders by criteria tool
 """
 
 from typing import Dict, Any, List, Optional
-from fastmcp import FastMCP
+from mcp_server.utils.db_client import mongo_client
+from mcp_server.mcp_instance import mcp
 
-
-def register_tool(mcp: FastMCP, db):
-    @mcp.tool()
-    def search_orders_by_criteria(
+@mcp.tool()
+def search_orders_by_criteria(
         customer_segment: Optional[str] = None,
         order_type: Optional[str] = None, 
         status: Optional[str] = None,
@@ -32,8 +31,14 @@ def register_tool(mcp: FastMCP, db):
             
         Returns:
             List of orders matching the criteria
+            
+        WORKFLOW:
+            For custom searches, first use:
+            1. mongodb_get_collections() - to see available collections
+            2. mongodb_describe_collection() - to understand field names and structure
         """
         try:
+            db = mongo_client.db
             # Build match criteria
             match_criteria = {}
             
@@ -99,4 +104,4 @@ def register_tool(mcp: FastMCP, db):
             return list(db["orders"].aggregate(pipeline))
             
         except Exception as e:
-            return {"error": f"Order search failed: {str(e)}"}
+            return [{"error": f"Order search failed: {str(e)}"}]

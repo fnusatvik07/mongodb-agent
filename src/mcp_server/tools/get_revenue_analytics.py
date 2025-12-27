@@ -1,25 +1,30 @@
-"""
-Revenue analytics tool
-"""
+"""Revenue analytics tool"""
 
 from typing import Dict, Any, List
-from fastmcp import FastMCP
+from mcp_server.utils.db_client import mongo_client
+from mcp_server.mcp_instance import mcp
 from datetime import datetime, timedelta
 
-
-def register_tool(mcp: FastMCP, db):
-    @mcp.tool()
-    def get_daily_revenue(start_date: str, end_date: str) -> List[Dict[str, Any]]:
-        """Get daily revenue breakdown for date range
+@mcp.tool()
+def get_daily_revenue(start_date: str, end_date: str) -> List[Dict[str, Any]]:
+        """Get daily revenue breakdown for a specific date range.
 
         Args:
             start_date: Start date in YYYY-MM-DD format
             end_date: End date in YYYY-MM-DD format
             
         Returns:
-            List of daily revenue totals with order counts
+            List of daily revenue records with totals and order counts
+            
+        Date Format: "2024-01-15"
+        
+        WORKFLOW:
+            For custom revenue analysis, first use:
+            1. mongodb_get_collections() - to see available collections
+            2. mongodb_describe_collection() - to understand field names and structure
         """
         try:
+            db = mongo_client.db
             # Parse dates and convert to match database format
             start_dt = datetime.strptime(start_date, "%Y-%m-%d")
             end_dt = datetime.strptime(end_date, "%Y-%m-%d")

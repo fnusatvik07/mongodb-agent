@@ -1,15 +1,18 @@
-# 🏨 X-Hotel Analytics - MongoDB MCP Agent
+# 🏨 MongoDB Analytics Agent - Restaurant Management Analytics
 
-A comprehensive hotel analytics platform powered by MongoDB and Model Context Protocol (MCP), featuring intelligent data analysis, automated chart generation, and a modern web interface.
+A comprehensive restaurant analytics platform powered by MongoDB and Model Context Protocol (MCP), featuring intelligent data analysis, automated chart generation, and a modern conversational interface. Built with AI-powered natural language queries and real-time visualization capabilities.
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
-![Python](https://img.shields.io/badge/python-3.11+-green.svg)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-red.svg)
+![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)
+![Python](https://img.shields.io/badge/python-3.13+-green.svg)
+![FastAPI](https://img.shields.io/badge/FastAPI-latest-red.svg)
 ![React](https://img.shields.io/badge/React-18+-blue.svg)
 ![MongoDB](https://img.shields.io/badge/MongoDB-7.0+-green.svg)
+![Claude](https://img.shields.io/badge/Claude-3.5_Haiku-purple.svg)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
 ## 🏗️ Architecture Overview
+
+The MongoDB Analytics Agent follows a modern, modular architecture with three main layers:
 
 ```mermaid
 graph TB
@@ -17,28 +20,28 @@ graph TB
         UI[React UI<br/>ChatGPT-style Interface<br/>Port 3000]
     end
     
-    subgraph "Backend Layer"
+    subgraph "API Gateway"
         API[FastAPI Server<br/>REST API & CORS<br/>Port 8001]
         AGENT[LangGraph Agent<br/>Claude 3.5 Haiku<br/>Query Processing]
     end
     
-    subgraph "MCP Layer"
+    subgraph "MCP Analytics Layer"
         MCP[MCP Server<br/>FastMCP Framework<br/>Port 8000]
         TOOLS[19+ Analytics Tools<br/>MongoDB Operations<br/>Chart Generation]
     end
     
-    subgraph "Data Layer"
-        DB[(MongoDB<br/>Hotel Management<br/>Collections)]
-        CHARTS[Chart Storage<br/>Matplotlib/Seaborn<br/>PNG Files]
+    subgraph "Data & Storage"
+        DB[(MongoDB<br/>Restaurant Data<br/>6 Collections)]
+        CHARTS[Chart Storage<br/>Matplotlib/Seaborn<br/>High-res PNG Files]
     end
     
     UI -->|HTTP Requests| API
     API -->|Query Processing| AGENT
     AGENT -->|Tool Calls| MCP
-    MCP -->|Data Operations| TOOLS
-    TOOLS -->|Queries| DB
-    TOOLS -->|Generate| CHARTS
-    API -->|Serve Charts| UI
+    MCP -->|Analytics Operations| TOOLS
+    TOOLS -->|Database Queries| DB
+    TOOLS -->|Generate Visualizations| CHARTS
+    API -->|Serve Charts & Data| UI
     
     style UI fill:#e1f5fe
     style API fill:#f3e5f5
@@ -49,172 +52,244 @@ graph TB
     style CHARTS fill:#f1f8e9
 ```
 
+### Key Components
+
+- **Frontend**: Modern React interface with conversational UI
+- **API Gateway**: FastAPI server handling requests and responses
+- **AI Agent**: LangGraph-powered agent with Claude 3.5 Haiku LLM
+- **MCP Server**: 19+ specialized analytics tools using FastMCP framework
+- **Database**: MongoDB with comprehensive restaurant data model
+- **Visualization**: Automated chart generation with matplotlib/seaborn
+
 ## 🚀 Features
 
-### 🎯 Core Analytics
-- **Revenue Analytics**: Daily, weekly, monthly revenue breakdowns
-- **Menu Performance**: Top-selling items, revenue by menu category
-- **Customer Insights**: Segment analysis, spending patterns, loyalty metrics
-- **Order Analytics**: Status tracking, type distribution, trends
-- **Operational Metrics**: Delivery performance, service efficiency
+### 🤖 Conversational Analytics
+- **Natural Language Queries**: Ask questions in plain English like "Show me daily revenue trends"
+- **Context-Aware Responses**: Maintains conversation context and understands follow-up questions
+- **Multi-turn Conversations**: Build complex analyses through iterative questioning
+- **Smart Query Processing**: AI-powered understanding of restaurant industry terminology
 
-### 📊 Data Visualization
+### 📊 Advanced Data Visualization
 - **Automated Chart Generation**: Pie charts, bar charts, line graphs, horizontal bars
-- **Smart Chart Selection**: AI-powered chart type recommendations
-- **Interactive Displays**: Hover effects, zoom capabilities
-- **Export Ready**: High-resolution PNG outputs
+- **Smart Chart Selection**: AI automatically chooses the best visualization type
+- **Time Series Analysis**: Specialized line charts for revenue and order trends
+- **Interactive Displays**: High-resolution PNG outputs with professional styling
+- **Export Ready**: Right-click to save charts for presentations
 
-### 🤖 Intelligent Interface
-- **Natural Language Queries**: Ask questions in plain English
-- **Context-Aware Responses**: Understands hotel industry terminology
-- **Multi-turn Conversations**: Maintains context across queries
-- **Tools Exploration**: View all 19+ available analytics tools
+### 💰 Revenue Intelligence
+- **Daily Revenue Analytics**: Detailed breakdowns with trend analysis
+- **Menu Performance**: Revenue by item, category performance, profit analysis
+- **Customer Spending**: Segment analysis, lifetime value, spending patterns
+- **Order Analytics**: Status distribution, type comparison, completion rates
+- **Operational KPIs**: Service efficiency, delivery performance metrics
 
-### 🎨 Modern UI/UX
-- **ChatGPT-style Interface**: Familiar chat-based interaction
-- **Responsive Design**: Works on desktop, tablet, and mobile
-- **Real-time Updates**: Live chart generation and display
-- **Professional Styling**: Hotel industry color schemes and branding
+### 🎨 Modern Interface
+- **ChatGPT-style UI**: Familiar conversational interface with message bubbles
+- **Real-time Processing**: Live chart generation and instant responses  
+- **Responsive Design**: Works seamlessly on desktop, tablet, and mobile
+- **Professional Styling**: Restaurant industry color schemes and gradients
+- **Text Formatting**: Support for bold, italic, and code formatting in responses
+
+### 🔧 Developer Experience
+- **19+ Analytics Tools**: Comprehensive MongoDB operations and specialized analytics
+- **FastMCP Integration**: Modern Model Context Protocol implementation
+- **REST API**: Well-documented endpoints for external integration
+- **Error Handling**: Graceful error management and user feedback
 
 ## 🛠️ Technical Stack
 
-### Backend Technologies
-- **Python 3.11+**: Core backend language
-- **FastAPI**: High-performance REST API framework
-- **LangGraph**: AI agent orchestration and workflow management
-- **FastMCP**: Model Context Protocol server implementation
-- **Anthropic Claude 3.5 Haiku**: Large language model for query understanding
-- **MongoDB**: NoSQL database for hotel data storage
-- **Matplotlib/Seaborn**: Chart generation and data visualization
+### AI & Analytics Engine
+- **Python 3.13**: Latest Python with enhanced performance
+- **Claude 3.5 Haiku**: Anthropic's advanced language model for query understanding
+- **LangGraph**: AI agent orchestration and complex workflow management
+- **FastMCP**: Modern Model Context Protocol server implementation
+- **MongoDB**: High-performance NoSQL database with aggregation pipelines
+
+### Backend Infrastructure  
+- **FastAPI**: High-performance async REST API framework
+- **Matplotlib/Seaborn**: Professional data visualization libraries
+- **Pydantic**: Data validation and type safety
+- **CORS**: Cross-origin resource sharing for web integration
+- **Error Handling**: Comprehensive exception management
 
 ### Frontend Technologies
-- **React 18**: Modern UI framework
-- **CSS3**: Advanced styling with animations and gradients
-- **Create React App**: Development and build tooling
-- **Fetch API**: HTTP client for backend communication
+- **React 18**: Modern UI framework with hooks and concurrent features
+- **CSS3**: Advanced styling with animations, gradients, and responsive design
+- **Create React App**: Development tooling and build optimization
+- **Fetch API**: Native HTTP client for backend communication
+- **Markdown Rendering**: Support for rich text formatting in responses
 
-### Infrastructure
-- **CORS**: Cross-origin resource sharing configuration
-- **File Serving**: Static chart file hosting
-- **Error Handling**: Comprehensive error management
-- **Logging**: Detailed application monitoring
+### Data & Storage
+- **MongoDB Collections**: 6 specialized collections for restaurant operations
+- **Chart Storage**: File-based PNG storage with unique naming
+- **Data Models**: Structured schemas for consistent data handling
+- **Aggregation Pipelines**: Complex analytical queries with high performance
 
 ## 📁 Project Structure
 
 ```
 mongodb-agent/
-├── 📁 src/mcp_server/          # MCP Server Implementation
-│   ├── 📄 server.py            # FastMCP server entry point
-│   ├── 📁 tools/               # 19+ Analytics Tools
-│   │   ├── 📄 mongodb_query.py          # Basic MongoDB queries
-│   │   ├── 📄 mongodb_aggregate.py      # Complex aggregation pipelines
-│   │   ├── 📄 generate_chart.py         # Chart generation tool
-│   │   ├── 📄 get_revenue_analytics.py  # Revenue analysis
-│   │   ├── 📄 get_menu_performance.py   # Menu insights
-│   │   ├── 📄 get_customer_insights.py  # Customer analytics
-│   │   └── 📄 ... (16 more tools)
-│   ├── 📁 models/              # Data models and schemas
-│   └── 📁 utils/               # Database utilities
-├── 📁 agent/                   # AI Agent Layer
-│   └── 📄 langgraph_agent.py   # LangGraph agent implementation
-├── 📁 ui/                      # React Frontend
+├── 📁 src/                     # Core Application Source
+│   ├── 📁 api_server/          # FastAPI Backend
+│   │   ├── 📄 fastapi_server.py      # Main API server with CORS
+│   │   └── 📁 agent/               # AI Agent Layer
+│   │       └── 📄 langgraph_agent.py   # LangGraph agent with Claude
+│   ├── 📁 mcp_server/          # MCP Analytics Engine
+│   │   ├── 📄 server.py            # FastMCP server entry point
+│   │   ├── 📁 tools/               # 19+ Analytics Tools
+│   │   │   ├── 📄 mongodb_query.py          # Basic MongoDB operations
+│   │   │   ├── 📄 mongodb_aggregate.py      # Complex aggregation pipelines
+│   │   │   ├── 📄 generate_chart.py         # Chart generation with matplotlib
+│   │   │   ├── 📄 get_revenue_analytics.py  # Revenue analysis tools
+│   │   │   ├── 📄 get_menu_performance.py   # Menu insights and analytics
+│   │   │   ├── 📄 get_customer_insights.py  # Customer behavior analysis
+│   │   │   ├── 📄 get_operational_metrics.py # KPI calculations
+│   │   │   └── 📄 ... (12 more specialized tools)
+│   │   ├── 📁 models/              # Pydantic data models
+│   │   │   └── 📄 data_models.py       # Schema definitions
+│   │   └── 📁 utils/               # Database utilities
+│   │       └── 📄 db_client.py         # MongoDB connection manager
+├── 📁 ui/                      # React Frontend Application
 │   ├── 📁 src/
-│   │   ├── 📄 App.js           # Main React component
-│   │   ├── 📄 App.css          # Enhanced UI styles
-│   │   └── 📄 index.js         # React entry point
-│   └── 📄 package.json         # Node.js dependencies
-├── 📁 data/                    # Sample Hotel Data
-│   ├── 📄 customers.json       # Customer records
-│   ├── 📄 orders.json          # Order transactions
-│   ├── 📄 menu_items.json      # Menu catalog
-│   └── 📄 ... (more datasets)
+│   │   ├── 📄 App.js               # Main React component (ChatGPT-style UI)
+│   │   ├── 📄 App.css              # Enhanced styling with gradients
+│   │   ├── 📄 index.js             # React application entry point
+│   │   └── 📁 components/          # Reusable UI components
+│   │       ├── 📄 ChatContainer.js     # Main chat interface
+│   │       ├── 📄 MessageBubble.js     # Individual message display
+│   │       └── 📄 AnalyticsCard.js     # Chart display component
+│   ├── 📄 package.json             # Node.js dependencies
+│   └── 📁 public/                  # Static assets
+├── 📁 data/                    # Sample Restaurant Data
+│   ├── 📄 customers.json           # Customer records with segments
+│   ├── 📄 orders.json              # Order transactions and details
+│   ├── 📄 menu_items.json          # Menu catalog with pricing
+│   ├── 📄 delivery_details.json    # Delivery logistics
+│   ├── 📄 users.json               # System users and staff
+│   └── 📄 audit_logs.json          # Activity tracking
 ├── 📁 charts/                  # Generated Visualizations
-├── 📄 fastapi_server.py        # FastAPI REST API server
+├── 📁 mongodb_concepts/        # Learning Materials & Examples
+├── 📄 main.py                  # System startup script
 ├── 📄 requirements.txt         # Python dependencies
+├── 📄 pyproject.toml           # Project configuration
+├── 📄 TEST_QUESTIONS.md        # Comprehensive testing guide
+├── 📄 ARCHITECTURE.md          # Detailed architecture documentation
 └── 📄 README.md               # This documentation
 ```
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- **Python 3.11+** installed
-- **Node.js 16+** and npm
-- **MongoDB** running locally or remotely
+- **Python 3.13+** installed on your system
+- **Node.js 18+** and npm for frontend development
+- **MongoDB** running locally or remote connection
+- **Anthropic API Key** for Claude 3.5 Haiku access
 - **Git** for version control
 
-### 1. Clone the Repository
+### 1. Clone & Setup Repository
 ```bash
 git clone https://github.com/fnusatvik07/mongodb-agent.git
 cd mongodb-agent
-```
 
-### 2. Backend Setup
-```bash
-# Create virtual environment
+# Create and activate Python virtual environment
 python -m venv .venv
-
-# Activate virtual environment
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
 # Install Python dependencies
 pip install -r requirements.txt
-
-# Set up environment variables
-export ANTHROPIC_API_KEY="your-anthropic-api-key"
-export MONGODB_URI="mongodb://localhost:27017"
 ```
 
-### 3. Database Setup
+### 2. Environment Configuration
 ```bash
-# Import sample data (optional)
-mongoimport --db hotel_management --collection customers --file data/customers.json --jsonArray
-mongoimport --db hotel_management --collection orders --file data/orders.json --jsonArray
-mongoimport --db hotel_management --collection menu_items --file data/menu_items.json --jsonArray
+# Set required environment variables
+export ANTHROPIC_API_KEY="your-anthropic-api-key-here"
+export MONGODB_URI="mongodb://localhost:27017"  # Optional: defaults to localhost
+
+# Or create a .env file in project root:
+echo "ANTHROPIC_API_KEY=your-api-key-here" > .env
+echo "MONGODB_URI=mongodb://localhost:27017" >> .env
 ```
 
-### 4. Frontend Setup
+### 3. Database Setup (Optional Sample Data)
+```bash
+# Import sample restaurant data for testing
+mongoimport --db restaurant_management --collection customers --file data/customers.json --jsonArray
+mongoimport --db restaurant_management --collection orders --file data/orders.json --jsonArray
+mongoimport --db restaurant_management --collection menu_items --file data/menu_items.json --jsonArray
+mongoimport --db restaurant_management --collection delivery_details --file data/delivery_details.json --jsonArray
+mongoimport --db restaurant_management --collection users --file data/users.json --jsonArray
+mongoimport --db restaurant_management --collection audit_logs --file data/audit_logs.json --jsonArray
+```
+
+### 4. Frontend Dependencies
 ```bash
 cd ui
 npm install
+cd ..
 ```
 
-### 5. Start All Services
+### 5. Launch All Services
 ```bash
-# Terminal 1: Start MCP Server
+# Terminal 1: Start MCP Analytics Server (Port 8000)
 python src/mcp_server/server.py
 
-# Terminal 2: Start FastAPI Backend
-python fastapi_server.py
+# Terminal 2: Start FastAPI Backend (Port 8001)  
+python src/api_server/fastapi_server.py
 
-# Terminal 3: Start React Frontend
+# Terminal 3: Start React Frontend (Port 3000)
 cd ui && npm start
 ```
 
 ### 6. Access the Application
-Open your browser and navigate to: **http://localhost:3000**
+🎉 **Open your browser and navigate to: http://localhost:3000**
+
+You should see a ChatGPT-style interface where you can start asking questions like:
+- "Show me daily revenue trends"
+- "Generate a pie chart of customer segments"  
+- "What are the top 5 best-selling menu items?"
 
 ## 🔧 Configuration
 
 ### Environment Variables
 Create a `.env` file in the project root:
 ```env
-# AI Configuration
+# Required: AI Configuration
 ANTHROPIC_API_KEY=your-anthropic-api-key-here
 
-# Database Configuration
+# Optional: Database Configuration (defaults provided)
 MONGODB_URI=mongodb://localhost:27017
-MONGODB_DATABASE=hotel_management
+MONGODB_DATABASE=restaurant_management
 
-# Server Configuration
+# Optional: Server Configuration (defaults provided)
 MCP_SERVER_PORT=8000
 API_SERVER_PORT=8001
 UI_PORT=3000
 
-# Chart Configuration
+# Optional: Chart Configuration (defaults provided)
 CHART_DPI=300
 CHART_FORMAT=PNG
 CHART_DIRECTORY=./charts
 ```
+
+### Recent Updates (v2.0)
+
+#### ✨ Major UI/UX Improvements
+- **Multiple UI Paradigms**: Evolved from basic → SaaS-style → ChatGPT-style → minimal clean interface
+- **Enhanced Text Formatting**: Support for **bold**, *italic*, and `code` formatting in chat responses
+- **Responsive Design**: Improved mobile and tablet compatibility
+- **Professional Styling**: Restaurant industry color schemes with gradient themes
+
+#### 🔧 Chart Generation Fixes
+- **Fixed X-axis Labels**: Resolved issue showing "item1, item2" instead of actual data values
+- **Line Chart Improvements**: Fixed time series visualization for daily revenue trends
+- **Chart Type Forcing**: Automatic chart type selection for time-based data
+- **High-Resolution Output**: 300 DPI PNG generation for professional presentations
+
+#### 🚀 Performance Enhancements  
+- **Python 3.13**: Updated to latest Python version with performance improvements
+- **Error Handling**: Comprehensive error management and user feedback
+- **Data Validation**: Enhanced Pydantic models for type safety
+- **Chart Storage**: Optimized file naming and storage system
 
 ### MongoDB Collections Schema
 
@@ -222,12 +297,15 @@ CHART_DIRECTORY=./charts
 ```json
 {
   "_id": "ObjectId",
-  "customer_id": "string",
-  "name": "string", 
-  "email": "string",
-  "segment": "vip|standard|premium",
-  "total_spent": "number",
-  "orders_count": "number"
+  "customer_id": "cust_0001",
+  "name": "John Doe", 
+  "email": "john@example.com",
+  "phone": "+1-555-0123",
+  "segment": "vip|premium|standard|new",
+  "registration_date": "2024-09-01",
+  "total_spent": 1250.00,
+  "orders_count": 15,
+  "last_order_date": "2024-09-30"
 }
 ```
 
@@ -235,20 +313,23 @@ CHART_DIRECTORY=./charts
 ```json
 {
   "_id": "ObjectId",
-  "order_id": "string",
-  "customer_id": "string",
-  "order_date": "YYYY-MM-DD",
-  "order_time": "HH:MM:SS",
-  "order_type": "dine-in|delivery|takeout",
-  "status": "completed|pending|cancelled",
-  "total_amount": "number",
+  "order_id": "order_00001",
+  "customer_id": "cust_0001",
+  "order_date": "2024-09-15T14:30:00Z",
+  "order_type": "dine_in|delivery|takeout",
+  "status": "completed|pending|cancelled|refunded",
+  "total_amount": 85.50,
+  "payment_mode": "upi|card|cash",
   "items": [
     {
-      "name": "string",
-      "quantity": "number", 
-      "price": "number"
+      "name": "Margherita Pizza",
+      "quantity": 2,
+      "unit_price": 18.99,
+      "total_price": 37.98
     }
-  ]
+  ],
+  "special_instructions": "Extra cheese",
+  "delivery_address": "123 Main St, City"
 }
 ```
 
@@ -256,12 +337,57 @@ CHART_DIRECTORY=./charts
 ```json
 {
   "_id": "ObjectId",
-  "item_id": "string",
-  "name": "string",
-  "category": "string",
-  "price": "number",
-  "description": "string",
-  "availability": "boolean"
+  "item_id": "menu_001",
+  "name": "Margherita Pizza",
+  "category": "pizza|appetizer|main|dessert|beverage",
+  "price": 18.99,
+  "cost": 8.50,
+  "description": "Fresh tomato, mozzarella, basil",
+  "availability": true,
+  "allergens": ["dairy", "gluten"],
+  "preparation_time": 15
+}
+```
+
+#### Delivery Details Collection
+```json
+{
+  "_id": "ObjectId",
+  "order_id": "order_00001",
+  "delivery_person": "Mike Johnson",
+  "pickup_time": "2024-09-15T14:45:00Z",
+  "delivery_time": "2024-09-15T15:15:00Z",
+  "delivery_status": "delivered|in_transit|picked_up",
+  "delivery_fee": 4.99,
+  "distance_km": 3.2,
+  "customer_rating": 5
+}
+```
+
+#### Users Collection (Staff)
+```json
+{
+  "_id": "ObjectId",
+  "user_id": "staff_001",
+  "name": "Sarah Wilson",
+  "role": "manager|chef|server|delivery",
+  "email": "sarah@restaurant.com",
+  "hire_date": "2024-01-15",
+  "active": true,
+  "permissions": ["order_management", "reports"]
+}
+```
+
+#### Audit Logs Collection
+```json
+{
+  "_id": "ObjectId",
+  "timestamp": "2024-09-15T14:30:00Z",
+  "user_id": "staff_001",
+  "action": "order_created|order_updated|payment_processed",
+  "resource": "orders",
+  "resource_id": "order_00001",
+  "details": "Order status changed to completed"
 }
 ```
 
@@ -293,30 +419,47 @@ CHART_DIRECTORY=./charts
 
 ### Revenue Analysis
 ```
-"Show me the revenue breakdown for this month"
-"What's the daily revenue trend for the last 30 days?"
-"Generate a pie chart showing revenue by order type"
+"Show me the daily revenue trends for September 2024"
+"Generate a line chart of daily revenue trends"
+"What was the total revenue from September 15-30, 2024?"
+"Compare revenue between delivery and dine-in orders"
+"Create a bar chart showing revenue by order type"
 ```
 
 ### Menu Performance
 ```
 "What are the top 10 best-selling menu items?"
-"Show me menu performance by category"
-"Which items have the highest revenue per order?"
+"Show me menu performance by category"  
+"Generate a pie chart of menu item revenue distribution"
+"Which items have the highest profit margins?"
+"Create a horizontal bar chart of menu item popularity"
 ```
 
-### Customer Insights
+### Customer Analytics
 ```
-"Analyze customer spending patterns by segment"
-"Show me VIP customer behavior trends"
-"What's the average order value by customer type?"
+"Show me customer segments breakdown"
+"Generate a pie chart of customer segments"
+"Who are the top 5 customers by total spending?"
+"What's the average order value by customer segment?"
+"Create a bar chart showing top customers by spending"
 ```
 
-### Operational Metrics
+### Operational Insights
 ```
-"Display order status distribution for today"
-"Show delivery vs dine-in performance"
-"What are our peak ordering hours?"
+"Show me order status distribution for this month"
+"Generate a pie chart of order status distribution"
+"What's the most popular payment method?"
+"Display delivery performance metrics"
+"Show me peak ordering hours"
+```
+
+### Advanced Analytics
+```
+"Find customers with unusual ordering patterns"
+"Show seasonal trends in ordering behavior"
+"Calculate key operational metrics for September 2024"
+"Which combinations of menu items are ordered together?"
+"Provide a business summary for September 2024"
 ```
 
 ## 🎨 UI Features
@@ -405,59 +548,52 @@ The system implements the Model Context Protocol for tool communication:
 - **Error Handling**: Structured error responses
 - **Streaming**: Real-time response streaming
 
-## 🧪 Development
+## 🧪 Testing & Development
 
-### Adding New Tools
-1. Create a new tool file in `src/mcp_server/tools/`
-2. Implement the `register_tool` function
-3. Add tool import in `server.py`
-4. Update documentation
+### Comprehensive Test Suite
+The project includes `TEST_QUESTIONS.md` with 50+ test scenarios covering:
 
-Example tool structure:
-```python
-from typing import Dict, Any
-from fastmcp import FastMCP
+- **Data Exploration**: Collection discovery, schema analysis, data ranges
+- **Revenue Analytics**: Totals, trends, breakdowns by various dimensions  
+- **Customer Analysis**: Segments, behavior patterns, spending analysis
+- **Menu Performance**: Popular items, category analysis, profit margins
+- **Chart Generation**: All chart types with various data combinations
+- **Advanced Queries**: Complex filters, aggregations, business intelligence
 
-def register_tool(mcp: FastMCP, db):
-    @mcp.tool()
-    def your_tool_name(param1: str, param2: int = 10) -> Dict[str, Any]:
-        """Tool description for the AI agent
-        
-        Args:
-            param1: Description of parameter 1
-            param2: Description of parameter 2
-            
-        Returns:
-            Dictionary with analysis results
-        """
-        # Tool implementation
-        return {"result": "analysis_data"}
+### API Testing Examples
+```bash
+# Simple analytics query
+curl -X POST "http://localhost:8001/query" \
+  -H "Content-Type: application/json" \
+  -d '{"query": "Show me daily revenue trends"}'
+
+# Query with chart generation  
+curl -X POST "http://localhost:8001/query" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "Generate a pie chart of customer segments",
+    "generate_chart": true
+  }'
+
+# Get available tools
+curl "http://localhost:8001/tools"
 ```
 
-### Running Tests
+### Development Workflow
 ```bash
-# Backend tests
-python -m pytest tests/
+# Run backend tests
+python -m pytest tests/ -v
 
-# Frontend tests  
-cd ui && npm test
-
-# Integration tests
-python -m pytest tests/integration/
-```
-
-### Code Quality
-```bash
 # Format code
-black src/ agent/
+black src/ --line-length 88
 prettier --write ui/src/
 
-# Lint code  
-flake8 src/ agent/
-eslint ui/src/
+# Check types  
+mypy src/
 
-# Type checking
-mypy src/ agent/
+# Lint code
+flake8 src/
+eslint ui/src/
 ```
 
 ## 🚀 Deployment
@@ -517,49 +653,79 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Discussions**: [GitHub Discussions](https://github.com/fnusatvik07/mongodb-agent/discussions)
 - **Email**: support@mongodb-agent.com
 
+## 📄 License
+
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- **Anthropic** - Claude 3.5 Haiku language model for intelligent query processing
+- **FastMCP** - Modern Model Context Protocol framework for tool integration
+- **MongoDB** - High-performance NoSQL database platform  
+- **React Team** - Modern UI framework and ecosystem
+- **FastAPI** - High-performance Python web framework
+- **Matplotlib & Seaborn** - Professional data visualization libraries
+
+## 📞 Support & Community
+
+- **Issues**: [GitHub Issues](https://github.com/fnusatvik07/mongodb-agent/issues) - Bug reports and feature requests
+- **Discussions**: [GitHub Discussions](https://github.com/fnusatvik07/mongodb-agent/discussions) - Questions and community help
+- **Documentation**: Comprehensive guides in `ARCHITECTURE.md` and `TEST_QUESTIONS.md`
+- **Contributing**: See contributing guidelines below for development participation
+
+## 🤝 Contributing
+
+We welcome contributions from the community! Here's how to get involved:
+
+### Development Process
+1. **Fork** the repository on GitHub
+2. **Clone** your fork locally: `git clone https://github.com/YOUR-USERNAME/mongodb-agent.git`
+3. **Create** a feature branch: `git checkout -b feature/amazing-new-feature`
+4. **Develop** your changes with proper testing
+5. **Commit** with clear messages: `git commit -m 'Add amazing new feature'`
+6. **Push** to your fork: `git push origin feature/amazing-new-feature`  
+7. **Create** a Pull Request with detailed description
+
+### Contribution Guidelines
+- **Code Style**: Follow PEP 8 for Python, Prettier for JavaScript/React
+- **Testing**: Add tests for new features and maintain >90% coverage
+- **Documentation**: Update README and add inline code documentation
+- **Type Safety**: Use type hints in Python, TypeScript for complex frontend features
+- **Performance**: Ensure changes don't degrade query or chart generation performance
+
 ## 🔮 Roadmap
 
-### Version 1.1
-- [ ] Real-time data streaming
-- [ ] Advanced filtering options
-- [ ] Export to PDF/Excel
-- [ ] Custom dashboard creation
+### Version 2.1 (Q1 2025)
+- [ ] **Real-time Analytics**: WebSocket integration for live data updates
+- [ ] **Advanced Filters**: Date ranges, custom field filtering in UI
+- [ ] **Export Capabilities**: PDF reports, Excel data export
+- [ ] **Custom Dashboards**: User-configurable analytics dashboards
+- [ ] **Mobile App**: React Native mobile application
 
-### Version 1.2  
-- [ ] Multi-tenant support
-- [ ] Role-based access control
-- [ ] API rate limiting
-- [ ] Performance optimization
+### Version 2.2 (Q2 2025)  
+- [ ] **Multi-tenant Support**: Restaurant chain management
+- [ ] **Role-based Access**: Staff permissions and data access controls
+- [ ] **API Rate Limiting**: Enhanced security and performance controls
+- [ ] **Caching Layer**: Redis integration for improved query performance
+- [ ] **Audit Trail**: Enhanced logging and compliance features
 
-### Version 2.0
-- [ ] Machine learning predictions
-- [ ] Advanced analytics algorithms
-- [ ] Mobile app development
-- [ ] Third-party integrations
+### Version 3.0 (Q3 2025)
+- [ ] **Machine Learning**: Predictive analytics for sales forecasting
+- [ ] **Advanced Algorithms**: Customer lifetime value, churn prediction
+- [ ] **Third-party Integrations**: POS systems, delivery platforms
+- [ ] **Voice Interface**: Voice-activated analytics queries
+- [ ] **Business Intelligence**: Advanced reporting and insights engine
 
 ---
 
 <div align="center">
 
-**Built with ❤️ for the hotel industry**
+**🍕 Built with ❤️ for the restaurant industry**
 
-[⭐ Star this repo](https://github.com/fnusatvik07/mongodb-agent) | [🐛 Report Bug](https://github.com/fnusatvik07/mongodb-agent/issues) | [💡 Request Feature](https://github.com/fnusatvik07/mongodb-agent/issues)
+**Transform your restaurant data into actionable insights with AI-powered analytics**
+
+[⭐ Star this repo](https://github.com/fnusatvik07/mongodb-agent) | [🐛 Report Bug](https://github.com/fnusatvik07/mongodb-agent/issues) | [💡 Request Feature](https://github.com/fnusatvik07/mongodb-agent/issues) | [📖 Documentation](https://github.com/fnusatvik07/mongodb-agent/wiki)
+
+**Version 2.0** | **Python 3.13** | **React 18** | **MongoDB 7.0** | **Claude 3.5 Haiku**
 
 </div>
-- `delivery_details`: Delivery logistics and tracking
-- `users`: System users and staff information
-- `audit_logs`: System activity and audit trails
-
-## Core Files
-
-- `main.py`: System startup and management
-- `fastapi_server.py`: REST API server with agent integration
-- `langgraph_agent.py`: LangGraph agent with Groq LLM
-- `src/mcp_server/`: FastMCP server with MongoDB tools
-- `helpers/`: Utility functions and setup scripts
-
-## Environment Variables
-
-- `GROQ_API_KEY`: Required for LLM functionality
-- `MONGODB_URI`: Optional, defaults to localhost:27017
-- `DATABASE_NAME`: Optional, defaults to hotel_management

@@ -3,12 +3,11 @@ Menu performance tool
 """
 
 from typing import Dict, Any, List
-from fastmcp import FastMCP
+from mcp_server.utils.db_client import mongo_client
+from mcp_server.mcp_instance import mcp
 
-
-def register_tool(mcp: FastMCP, db):
-    @mcp.tool()
-    def get_top_menu_items_by_orders(limit: int = 10) -> List[Dict[str, Any]]:
+@mcp.tool()
+def get_top_menu_items_by_orders(limit: int = 10) -> List[Dict[str, Any]]:
         """Get most frequently ordered menu items
 
         Args:
@@ -18,6 +17,7 @@ def register_tool(mcp: FastMCP, db):
             List of menu items with order frequency and revenue
         """
         try:
+            db = mongo_client.db
             pipeline = [
                 {"$unwind": "$items"},
                 {"$group": {
@@ -31,4 +31,4 @@ def register_tool(mcp: FastMCP, db):
             ]
             return list(db["orders"].aggregate(pipeline))
         except Exception as e:
-            return {"error": f"Menu performance analysis failed: {str(e)}"}
+            return [{"error": f"Menu performance analysis failed: {str(e)}"}]

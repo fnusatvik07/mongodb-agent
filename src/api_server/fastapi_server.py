@@ -13,6 +13,7 @@ from typing import Dict, Any, Optional, List
 import asyncio
 import os
 import json
+from datetime import datetime
 from agent.langgraph_agent import MongoDBAnalyticsAgent
 
 # Global agent instance
@@ -62,10 +63,18 @@ charts_dir = os.path.join(os.getcwd(), "charts")
 os.makedirs(charts_dir, exist_ok=True)
 app.mount("/charts", StaticFiles(directory=charts_dir), name="charts")
 
+# Mount UI static files if they exist
+ui_dir = os.path.join(os.path.dirname(__file__), "ui", "build")
+if os.path.exists(ui_dir):
+    app.mount("/ui", StaticFiles(directory=ui_dir, html=True), name="ui")
+
 class QueryRequest(BaseModel):
     query: str
     generate_chart: bool = False
-    chart_type: Optional[str] = None  # auto, bar, line, pie, table
+    chart_type: Optional[str] = None  # auto, bar, line, pie, horizontal_bar, scatter
+    chart_title: Optional[str] = None
+    save_chart: bool = True
+    chart_size: Optional[tuple] = None  # (width, height)
 
 class QueryResponse(BaseModel):
     success: bool
@@ -84,13 +93,20 @@ async def root():
     """Root endpoint with API information"""
     return {
         "message": "MongoDB Analytics Agent API",
-        "version": "1.0.0",
+        "version": "1.0.0", 
+        "description": "REST API for MongoDB hotel analytics with chart generation",
+        "mcp_server": "http://localhost:8000/mcp",
         "endpoints": {
             "/query": "POST - Send analytics queries to the agent",
-            "/tools": "GET - List available tools",
+            "/tools": "GET - List available MCP tools", 
             "/health": "GET - Health check",
-            "/charts/{filename}": "GET - Retrieve generated charts"
-        }
+            "/charts/{filename}": "GET - Retrieve generated charts",
+            "/charts": "GET - List available charts",
+            "/clear-charts": "DELETE - Clear all generated charts",
+            "/docs": "GET - API documentation"
+        },
+        "chart_types": ["auto", "bar", "line", "pie", "horizontal_bar", "scatter"],
+        "status": "running"
     }
 
 @app.get("/health")
@@ -163,11 +179,12 @@ async def process_query(request: QueryRequest):
             chart_info = await generate_chart_from_result(
                 result, 
                 request.query,
-                request.chart_type
+                request.chart_type or "auto"
             )
             if chart_info.get("path"):
                 chart_path = chart_info.get("path")
-                chart_title = chart_info.get("title", "Generated Chart")
+                chart_title = chart_info.get("title", "Generated Chart") 
+                chart_type = chart_info.get("type", "image")
         
         return QueryResponse(
             success=result["success"],
@@ -198,32 +215,89 @@ async def get_chart(filename: str):
     else:
         raise HTTPException(status_code=404, detail="Chart not found")
 
+@app.get("/charts")
+async def list_charts():
+    """List all available chart files"""
+    charts_dir = "./charts"
+    if not os.path.exists(charts_dir):
+        return {"charts": [], "count": 0}
+    
+    chart_files = []
+    for filename in os.listdir(charts_dir):
+        if filename.endswith(('.png', '.jpg', '.jpeg', '.svg')):
+            file_path = os.path.join(charts_dir, filename)
+            file_stats = os.stat(file_path)
+            chart_files.append({
+                "filename": filename,
+                "path": f"/charts/{filename}",
+                "size": file_stats.st_size,
+                "created": datetime.fromtimestamp(file_stats.st_ctime).isoformat(),
+                "modified": datetime.fromtimestamp(file_stats.st_mtime).isoformat()
+            })
+    
+    # Sort by creation date, newest first
+    chart_files.sort(key=lambda x: x["created"], reverse=True)
+    
+    return {
+        "charts": chart_files,
+        "count": len(chart_files),
+        "charts_directory": charts_dir
+    }
+
+@app.delete("/clear-charts")
+async def clear_charts():
+    """Clear all generated chart files"""
+    charts_dir = "./charts"
+    if not os.path.exists(charts_dir):
+        return {"message": "No charts directory found", "deleted": 0}
+    
+    deleted_count = 0
+    for filename in os.listdir(charts_dir):
+        if filename.endswith(('.png', '.jpg', '.jpeg', '.svg')):
+            file_path = os.path.join(charts_dir, filename)
+            try:
+                os.remove(file_path)
+                deleted_count += 1
+            except Exception as e:
+                print(f"Error deleting {filename}: {e}")
+    
+    return {
+        "message": f"Cleared {deleted_count} chart files",
+        "deleted": deleted_count
+    }
+
 async def generate_chart_from_result(result: Dict[str, Any], query: str, chart_type: Optional[str] = None) -> Dict[str, Any]:
     """Generate chart based on query result and context"""
-    # Import chart generation module
-    from helpers.chart_generator import ChartGenerator
-    
-    chart_gen = ChartGenerator()
-    
-    # Determine appropriate chart type if not specified
-    if not chart_type or chart_type == "auto":
-        chart_type = chart_gen.suggest_chart_type(query, result.get("tools_used", []))
-    
-    # Generate chart
-    chart_path = await chart_gen.generate_chart(
-        query=query,
-        result_data=result,
-        chart_type=chart_type,
-        tools_used=result.get("tools_used", [])
-    )
-    
-    if chart_path:
-        filename = os.path.basename(chart_path)
-        return {
-            "path": chart_path,
-            "title": f"Chart for: {query[:50]}...",
-            "filename": filename
-        }
+    try:
+        # Import chart generation module
+        from helpers.chart_generator import ChartGenerator
+        
+        chart_gen = ChartGenerator()
+        
+        # Determine appropriate chart type if not specified
+        if not chart_type or chart_type == "auto":
+            chart_type = chart_gen.suggest_chart_type(query, result.get("tools_used", []))
+        
+        # Generate chart
+        chart_result = await chart_gen.generate_chart(
+            query=query,
+            result_data=result,
+            chart_type=chart_type,
+            tools_used=result.get("tools_used", [])
+        )
+        
+        if chart_result and "path" in chart_result:
+            filename = os.path.basename(chart_result["path"])
+            return {
+                "path": f"/charts/{filename}",
+                "title": chart_result.get("title", f"Chart for: {query[:50]}..."),
+                "filename": filename,
+                "type": chart_type
+            }
+    except ImportError:
+        print("Warning: ChartGenerator not available")
+    except Exception as e:
+        print(f"Error generating chart: {e}")
     
     return {}
 

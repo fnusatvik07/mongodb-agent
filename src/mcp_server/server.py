@@ -12,38 +12,39 @@ from fastmcp import FastMCP
 import matplotlib
 matplotlib.use('Agg')
 
-# Add the src directory to the Python path
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+# Add the project root to Python path for direct execution
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+sys.path.insert(0, project_root)
+src_path = os.path.join(project_root, 'src')
+sys.path.insert(0, src_path)
 
 from mcp_server.utils.db_client import mongo_client
-
-# Import all tools
-from tools import mongodb_query
-from tools import mongodb_aggregate
-from tools import mongodb_insert
-from tools import mongodb_update
-from tools import mongodb_get_collections
-from tools import mongodb_describe_collection
-from tools import get_revenue_analytics
-from tools import get_customer_insights
-from tools import get_customer_segments
-from tools import get_menu_performance
-from tools import get_menu_revenue
-from tools import get_operational_metrics
-from tools import get_order_status
-from tools import get_order_types
-from tools import get_revenue_by_date
-from tools import search_orders
-from tools import quick_stats
-from tools import generate_chart
-from tools import get_data_range
+from mcp_server.mcp_instance import mcp
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Initialize FastMCP server
-mcp = FastMCP("mongodb-hotel-analytics")
+# Import all tools (this will register them automatically)
+from mcp_server.tools import mongodb_query
+from mcp_server.tools import mongodb_aggregate
+from mcp_server.tools import mongodb_insert
+from mcp_server.tools import mongodb_update
+from mcp_server.tools import mongodb_get_collections
+from mcp_server.tools import mongodb_describe_collection
+from mcp_server.tools import get_revenue_analytics
+from mcp_server.tools import get_customer_insights
+from mcp_server.tools import get_customer_segments
+from mcp_server.tools import get_menu_performance
+from mcp_server.tools import get_menu_revenue
+from mcp_server.tools import get_operational_metrics
+from mcp_server.tools import get_order_status
+from mcp_server.tools import get_order_types
+from mcp_server.tools import get_revenue_by_date
+from mcp_server.tools import search_orders
+from mcp_server.tools import quick_stats
+from mcp_server.tools import generate_chart
+from mcp_server.tools import get_data_range
 
 def setup_server():
     """Setup and configure the MCP server"""
@@ -55,27 +56,7 @@ def setup_server():
     
     logger.info(f"Connected to MongoDB database: {mongo_client.db_name}")
     
-    # Register all tools
-    mongodb_query.register_tool(mcp, mongo_client.db)
-    mongodb_aggregate.register_tool(mcp, mongo_client.db)
-    mongodb_insert.register_tool(mcp, mongo_client.db)
-    mongodb_update.register_tool(mcp, mongo_client.db)
-    mongodb_get_collections.register_tool(mcp, mongo_client.db)
-    mongodb_describe_collection.register_tool(mcp, mongo_client.db)
-    get_revenue_analytics.register_tool(mcp, mongo_client.db)
-    get_customer_insights.register_tool(mcp, mongo_client.db)
-    get_customer_segments.register_tool(mcp, mongo_client.db)
-    get_menu_performance.register_tool(mcp, mongo_client.db)
-    get_menu_revenue.register_tool(mcp, mongo_client.db)
-    get_operational_metrics.register_tool(mcp, mongo_client.db)
-    get_order_status.register_tool(mcp, mongo_client.db)
-    get_order_types.register_tool(mcp, mongo_client.db)
-    get_revenue_by_date.register_tool(mcp, mongo_client.db)
-    search_orders.register_tool(mcp, mongo_client.db)
-    quick_stats.register_tool(mcp, mongo_client.db)
-    generate_chart.register_tool(mcp, mongo_client.db)
-    get_data_range.register_tool(mcp, mongo_client.db)
-    
+    # Tools are automatically registered through imports
     logger.info("All tools registered successfully")
     
     return mcp

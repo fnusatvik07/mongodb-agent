@@ -3,18 +3,20 @@ Customer segments analytics tool
 """
 
 from typing import Dict, Any, List
-from fastmcp import FastMCP
+from mcp_server.utils.db_client import mongo_client
+from mcp_server.mcp_instance import mcp
 
-
-def register_tool(mcp: FastMCP, db):
-    @mcp.tool()
-    def get_customer_segments_breakdown() -> List[Dict[str, Any]]:
-        """Get breakdown of customer segments with spending statistics
+@mcp.tool()
+def get_customer_segments() -> List[Dict[str, Any]]:
+        """Analyze customer segments with spending statistics.
 
         Returns:
-            List of segments with customer count and spending metrics
+            List of customer segments with counts and spending metrics
+            
+        Groups customers by segment field and calculates aggregated spending statistics.
         """
         try:
+            db = mongo_client.db
             pipeline = [
                 {"$group": {
                     "_id": "$segment",
@@ -29,4 +31,4 @@ def register_tool(mcp: FastMCP, db):
             ]
             return list(db["customers"].aggregate(pipeline))
         except Exception as e:
-            return {"error": f"Customer segments analysis failed: {str(e)}"}
+            return [{"error": f"Customer segments analysis failed: {str(e)}"}]

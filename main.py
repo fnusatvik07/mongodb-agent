@@ -13,15 +13,15 @@ def start_mcp_server():
     """Start the MCP server in background"""
     print("🔄 Starting MCP Server...")
     return subprocess.Popen([
-        sys.executable, "src/mcp_server/server.py"
-    ], cwd=Path(__file__).parent)
+        sys.executable, "server.py"
+    ], cwd=Path(__file__).parent / "src" / "mcp_server")
 
 def start_fastapi_server():
     """Start the FastAPI server in background"""
     print("🔄 Starting FastAPI Server...")
     return subprocess.Popen([
         sys.executable, "fastapi_server.py"
-    ], cwd=Path(__file__).parent)
+    ], cwd=Path(__file__).parent / "src" / "api_server")
 
 async def main():
     """Main entry point"""

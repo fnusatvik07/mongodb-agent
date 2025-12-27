@@ -1,35 +1,63 @@
-"""
-MongoDB update tool
-"""
+"""MongoDB update tool for modifying documents in collections."""
 
 from typing import Dict, Any
-from fastmcp import FastMCP
+from mcp_server.utils.db_client import mongo_client
+from mcp_server.mcp_instance import mcp
 
-
-def register_tool(mcp: FastMCP, db):
-    @mcp.tool()
-    def mongodb_update(collection: str, filter_criteria: Dict[str, Any], 
-                      update_data: Dict[str, Any], upsert: bool = False) -> Dict[str, Any]:
-        """Update documents in MongoDB collection
+@mcp.tool()
+def mongodb_update(
+        collection: str, 
+        filter_criteria: Dict[str, Any], 
+        update_data: Dict[str, Any], 
+        upsert: bool = False
+    ) -> Dict[str, Any]:
+        """Update documents in a MongoDB collection.
 
         Args:
-            collection: Collection name
-            filter_criteria: Match criteria for documents to update
-            update_data: Update operations (use $set, $inc, etc.)
-            upsert: Insert if no match found (default: False)
+            collection: Collection name (orders, customers, menu_items, users, audit_logs, delivery_details)
+            filter_criteria: Query dict to find documents to update
+            update_data: Update operations dict using MongoDB update operators
+            upsert: Create document if not found (default: False)
             
-        Examples:
-            - Update customer: mongodb_update("customers", 
-                {"customer_id": "CUST001"},
-                {"$set": {"total_spent": 1250.75}}
-              )
+        Returns:
+            Dict with success status, modified count, and upserted ID if applicable
+            
+        IMPORTANT: Before updating, always use:
+            1. mongodb_get_collections() - to see available collections
+            2. mongodb_describe_collection() - to understand field names and structure
+            
+        Update Patterns:
+            Set fields: {"$set": {"status": "completed", "total": 150}}
+            Increment: {"$inc": {"loyalty_points": 10}}
+            Add to array: {"$push": {"items": {"name": "Pizza"}}}
+            
+        Use MongoDB update operators ($set, $inc, $push, $pull, $unset).
+        Always structure filter_criteria as a valid MongoDB query dictionary.
         """
         try:
+            if not collection or not isinstance(collection, str):
+                return {"success": False, "error": "Collection name must be a non-empty string"}
+                
+            if not isinstance(filter_criteria, dict):
+                return {"success": False, "error": "Filter criteria must be a dictionary"}
+                
+            if not isinstance(update_data, dict) or not update_data:
+                return {"success": False, "error": "Update data must be a non-empty dictionary"}
+                
+            if not isinstance(upsert, bool):
+                return {"success": False, "error": "Upsert must be a boolean value"}
+            
+            db = mongo_client.db
             result = db[collection].update_many(filter_criteria, update_data, upsert=upsert)
+            
             return {
+                "success": True,
                 "matched_count": result.matched_count,
                 "modified_count": result.modified_count,
                 "upserted_id": str(result.upserted_id) if result.upserted_id else None
             }
         except Exception as e:
-            return {"error": f"Update failed: {str(e)}"}
+            return {
+                "success": False,
+                "error": f"Update operation failed: {str(e)}"
+            }

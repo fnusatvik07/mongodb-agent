@@ -5,7 +5,7 @@ Uses Groq for LLM and integrates with our MCP tools
 
 import asyncio
 import os
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from langchain_mcp_adapters.client import MultiServerMCPClient
 from langchain_anthropic import ChatAnthropic
 from langchain.agents import create_agent
@@ -18,19 +18,23 @@ load_dotenv()
 class MongoDBAnalyticsAgent:
     """LangGraph agent that uses MongoDB MCP tools via Groq"""
     
-    def __init__(self, anthropic_api_key: str = None, mcp_server_url: str = "http://localhost:8000/mcp"):
+    def __init__(self, anthropic_api_key: Optional[str] = None, mcp_server_url: str = "http://localhost:8000/mcp"):
         self.anthropic_api_key = anthropic_api_key or os.getenv("ANTHROPIC_API_KEY")
         self.mcp_server_url = mcp_server_url
         
         if not self.anthropic_api_key:
             raise ValueError("ANTHROPIC_API_KEY not found. Set it in environment or pass as parameter")
         
+        # Set API key in environment for ChatAnthropic
+        os.environ["ANTHROPIC_API_KEY"] = self.anthropic_api_key
+        
         # Initialize Anthropic model for tool calling
         self.model = ChatAnthropic(
-            model="claude-3-5-haiku-20241022",  # Latest 2025 model with fast tool calling
-            api_key=self.anthropic_api_key,
+            model_name="claude-sonnet-4-5-20250929",  # Claude Sonnet 4.5 model
             temperature=0,
-            max_tokens=2000
+            max_tokens_to_sample=2000,
+            timeout=60,
+            stop=[]
         )
         
         self.client = None
@@ -115,39 +119,67 @@ Use the available tools to answer questions about the hotel data. When asked abo
         """
         Enhance user queries with context and specific tool suggestions
         """
+        if not query or not isinstance(query, str):
+            return "Please provide a valid question about the hotel data."
+            
+        query = query.strip()
+        if len(query) < 3:
+            return "Please provide a more detailed question."
+            
         query_lower = query.lower()
         suggestions = []
         
-        # Revenue-related queries
-        if any(word in query_lower for word in ['revenue', 'sales', 'money', 'earning', 'profit', 'income']):
-            suggestions.append("💡 Revenue Tools: get_daily_revenue(), get_revenue_by_date_range(), get_top_menu_items_by_revenue()")
+        # Revenue and financial queries
+        revenue_keywords = ['revenue', 'sales', 'money', 'earning', 'profit', 'income', 'total', 'amount', 'financial']
+        if any(word in query_lower for word in revenue_keywords):
+            suggestions.append("💰 Revenue Analysis: Use get_daily_revenue(), get_revenue_by_date_range(), or get_top_menu_items_by_revenue()")
         
-        # Customer-related queries  
-        if any(word in query_lower for word in ['customer', 'client', 'buyer', 'user', 'segment']):
-            suggestions.append("👥 Customer Tools: get_top_customers_by_spending(), get_customer_segments_breakdown()")
+        # Customer analysis queries  
+        customer_keywords = ['customer', 'client', 'buyer', 'user', 'segment', 'spending', 'loyalty', 'top customer']
+        if any(word in query_lower for word in customer_keywords):
+            suggestions.append("👥 Customer Insights: Use get_top_customers_by_spending() or get_customer_segments()")
             
-        # Menu-related queries
-        if any(word in query_lower for word in ['menu', 'dish', 'food', 'item', 'popular', 'selling']):
-            suggestions.append("🍽️  Menu Tools: get_top_menu_items_by_orders(), get_top_menu_items_by_revenue()")
+        # Menu and product queries
+        menu_keywords = ['menu', 'dish', 'food', 'item', 'popular', 'selling', 'product', 'bestseller', 'most ordered']
+        if any(word in query_lower for word in menu_keywords):
+            suggestions.append("🍽️ Menu Analysis: Use get_top_menu_items_by_orders() or get_top_menu_items_by_revenue()")
             
-        # Operational queries
-        if any(word in query_lower for word in ['operation', 'delivery', 'order', 'status', 'type', 'payment']):
-            suggestions.append("⚙️  Operations Tools: get_order_status_breakdown(), get_order_types_breakdown(), get_payment_methods_breakdown()")
+        # Operations and order queries
+        ops_keywords = ['order', 'status', 'type', 'payment', 'delivery', 'operation', 'breakdown', 'distribution']
+        if any(word in query_lower for word in ops_keywords):
+            suggestions.append("⚙️ Operations: Use get_orders_by_status(), get_orders_by_type(), or get_payment_methods_breakdown()")
             
-        # Overview/summary queries
-        if any(word in query_lower for word in ['overview', 'summary', 'stats', 'business', 'how', 'doing']):
-            suggestions.append("📊 Summary Tools: get_collection_summary(), get_customer_segments_breakdown()")
+        # Data exploration queries
+        explore_keywords = ['collections', 'available', 'database', 'schema', 'structure', 'describe', 'show me']
+        if any(word in query_lower for word in explore_keywords):
+            suggestions.append("🔍 Data Exploration: Use mongodb_get_collections() or mongodb_describe_collection()")
         
-        # Search queries
-        if any(word in query_lower for word in ['find', 'search', 'show', 'get', 'filter']):
-            suggestions.append("🔍 Search Tools: search_orders_by_criteria(), mongodb_query()")
+        # Date and time queries
+        date_keywords = ['date', 'time', 'range', 'period', 'daily', 'monthly', 'week', 'month', 'year', 'september', 'october']
+        if any(word in query_lower for word in date_keywords):
+            suggestions.append("📅 Date Analysis: First check get_data_date_range() for available dates")
+            
+        # Chart and visualization queries
+        chart_keywords = ['chart', 'graph', 'plot', 'visualization', 'pie', 'bar', 'line', 'generate', 'create']
+        if any(word in query_lower for word in chart_keywords):
+            suggestions.append("📊 Visualization: Use generate_chart_from_data() with appropriate data source")
+            
+        # Search and filter queries
+        search_keywords = ['find', 'search', 'filter', 'where', 'lookup', 'query']
+        if any(word in query_lower for word in search_keywords):
+            suggestions.append("🔎 Search & Filter: Use search_orders_by_criteria() or mongodb_query()")
         
-        # Add suggestions to query if any found
+        # Add context if suggestions found
         if suggestions:
-            query += "\n\n" + "\n".join(suggestions)
-            query += "\n\n📋 Remember: Use specific tools for better results. Chain multiple tools for comprehensive analysis."
+            enhanced_query = f"{query}\n\n🎯 Relevant Tools:\n" + "\n".join(f"• {s}" for s in suggestions)
+            enhanced_query += "\n\n📋 Tip: Always check available data dates before querying specific time periods."
+        else:
+            # Generic enhancement for unclear queries
+            enhanced_query = f"{query}\n\n💡 Available Analysis:\n"
+            enhanced_query += "• Revenue & Financial Data\n• Customer Insights & Segments\n• Menu Performance\n• Order Analytics\n• Payment Methods\n• Data Exploration\n\n"
+            enhanced_query += "🔧 Start with mongodb_get_collections() to explore available data."
         
-        return query
+        return enhanced_query
 
     async def query(self, user_input: str) -> Dict[str, Any]:
         """Process user query using the agent with preprocessing and error handling"""
@@ -253,14 +285,11 @@ Use the available tools to answer questions about the hotel data. When asked abo
     async def cleanup(self):
         """Clean up resources"""
         if self.client:
-            # MultiServerMCPClient cleanup - close individual sessions if available
+            # MultiServerMCPClient cleanup - set to None for garbage collection
             try:
-                if hasattr(self.client, '_sessions'):
-                    for session in self.client._sessions.values():
-                        if hasattr(session, 'close'):
-                            await session.close()
-            except Exception:
-                pass  # Ignore cleanup errors
+                self.client = None
+            except Exception as e:
+                print(f"Warning: MCP client cleanup error: {e}")
 
 # Demo function
 async def main():
@@ -275,25 +304,31 @@ async def main():
         print("❌ Failed to initialize agent")
         return
     
-    # Test diverse user scenarios  
+    # Test diverse user scenarios with direct questions
     test_queries = [
-        # Business overview (should trigger quick_stats)
-        "How's my business doing overall?",
+        # Data overview
+        "Show me all available collections in the database",
         
-        # Revenue analysis (should trigger get_revenue_analytics)
-        "Show me revenue trends for this week",
+        # Revenue analysis
+        "What was the total revenue from September 15-30, 2024?",
         
-        # Customer insights (should trigger get_customer_insights)
-        "Who are my most valuable customers?",
+        # Customer insights
+        "List the top 5 customers by total spending",
         
-        # Menu performance (should trigger get_menu_performance)
-        "What menu items are selling best?",
+        # Order analysis
+        "How many orders were completed vs cancelled?",
         
-        # Operations (should trigger get_operational_metrics)
-        "Are there any delivery delays I should know about?",
+        # Menu performance
+        "Which 3 menu items generate the most revenue?",
         
-        # Complex analytical question
-        "Which customer segment spends the most and what do they order?"
+        # Payment analysis
+        "Show breakdown of payment methods used",
+        
+        # Date range check
+        "What date range of data is available in the orders collection?",
+        
+        # Chart generation
+        "Generate a pie chart of order types distribution"
     ]
     
     print("\n🧪 Testing queries...")

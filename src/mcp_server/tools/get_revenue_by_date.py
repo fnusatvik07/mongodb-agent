@@ -3,13 +3,12 @@ Revenue by date range tool
 """
 
 from typing import Dict, Any
-from fastmcp import FastMCP
+from mcp_server.utils.db_client import mongo_client
+from mcp_server.mcp_instance import mcp
 from datetime import datetime
 
-
-def register_tool(mcp: FastMCP, db):
-    @mcp.tool()
-    def get_revenue_by_date_range(start_date: str, end_date: str) -> Dict[str, Any]:
+@mcp.tool()
+def get_revenue_by_date_range(start_date: str, end_date: str) -> Dict[str, Any]:
         """Get total revenue and statistics for a specific date range
 
         Args:
@@ -20,6 +19,7 @@ def register_tool(mcp: FastMCP, db):
             Revenue totals and statistics for the date range
         """
         try:
+            db = mongo_client.db
             # Parse dates and convert to match database format
             start_dt = datetime.strptime(start_date, "%Y-%m-%d")
             end_dt = datetime.strptime(end_date, "%Y-%m-%d")
